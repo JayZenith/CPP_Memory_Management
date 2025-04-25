@@ -111,3 +111,109 @@ public:
     static void shutdown();
 
 };
+
+    // STATIC INITIALIZATION
+    // Creates storage for the static variables
+    template <class T, int size>
+    std::list<PtrDetails<T>> Pointer<T, size>::refContainer;
+
+    template <class T, int size>
+    bool Pointer<T, size>::first = true;
+
+
+    // Constructor for both initialized and uninitialized objects.
+    template <class T, int size>
+    Pointer<T, size>::Pointer(T *t)
+    {
+        addr = t;
+        // Register shutdown() as an exit function.
+        if (first)
+            atexit(shutdown);
+        first = false;
+
+        if (size)
+        {
+            arraySize = size;
+            isArray = true;
+        }
+        else
+            isArray = false;
+
+        typename std::list<PtrDetails<T>>::iterator p;
+        p = findPtrInfo(t);
+        PtrDetails<T> pd(t, size);
+        refContainer.emplace_back(pd);
+        p = refContainer.end();
+    }
+
+    // Copy constructor.
+    template <class T, int size>
+    Pointer<T, size>::Pointer(const Pointer &ob)
+    {
+        addr = ob.addr;
+
+        typename std::list<PtrDetails<T>>::iterator p;
+        p = findPtrInfo(ob.addr);
+
+        // increment ref count
+        if (p->memPtr == ob.addr)
+        {
+            // update PtrDetails<T>'s refCount
+            (p->refcount)++;
+        }
+        else
+        {
+            // add a new PtrDetails instance to refCounter.
+            PtrDetails<T> pd(ob.addr, size);
+            refContainer.emplace_back(pd);
+        }
+    }
+
+    // Destructor for Pointer.
+    template <class T, int size>
+    Pointer<T, size>::~Pointer()
+    {
+        typename std::list<PtrDetails<T>>::iterator p;
+        p = findPtrInfo(addr);
+
+        // decrement ref count
+        (p->refcount)--;
+
+        // Collect garbage when a pointer goes out of scope.
+        // TIP: For real use, you might want to collect unused memory less frequently,
+        // such as after refContainer has reached a certain size, after a certain number of Pointers have gone out of scope,
+        // or when memory is low.
+        collect();
+    }
+
+
+    // Collect garbage. Returns true if at least
+    // one object was freed.
+    template <class T, int size>
+    bool Pointer<T, size>::collect()
+    {
+        bool memfreed = false;
+        typename std::list<PtrDetails<T>>::iterator p;
+        do
+        {
+            // Scan refContainer looking for unreferenced pointers.
+            for (p = refContainer.begin(); p != refContainer.end(); p++)
+            {
+                // If the memory is still in-use, continue through loop.
+                if (p->refcount > 0)
+                    continue;
+
+                if (p->memPtr)
+                {
+                    if (p->isArray)
+                        delete[] p->memPtr;
+                    else
+                        delete p->memPtr;
+                    memfreed = true;
+                }
+                refContainer.erase(p);
+                break;
+            }
+        } while (p != refContainer.end());
+        return memfreed;
+    }
