@@ -217,3 +217,111 @@ public:
         } while (p != refContainer.end());
         return memfreed;
     }
+
+    // Overload assignment of pointer to Pointer.
+    template <class T, int size>
+    T *Pointer<T, size>::operator=(T *t)
+    {
+        /* 
+        Example:
+            Pointer<int> p = new int(19);
+            p = new int(21);
+        */
+
+        // find the current PtrDetails that contains this' addr
+        typename std::list<PtrDetails<T>>::iterator p;
+        p = findPtrInfo(addr);
+        (p->refcount)--;
+
+        p = findPtrInfo(t);
+        if(p!=refContainer.end()){
+            p->refcount++;
+        } else {
+            // Add a new PtrDeatils to refContainer
+            PtrDetails<T> pd(t, size);
+            refContainer.push_back(pd);
+        }
+        addr = t;
+        return addr;
+    }
+
+    // Overload assignment of Pointer to Pointer.
+    template <class T, int size>
+    Pointer<T, size> &Pointer<T, size>::operator=(Pointer &rv)
+    {
+        typename std::list<PtrDetails<T>>::iterator p;
+        p = findPtrInfo(addr);
+        (p->refcount)--;
+
+        p = findPtrInfo(rv.addr);
+        if(p!=refContainer.end()){
+            p->refcount++;
+        } else {
+            // Add a new PtrDeatils to refContainer
+            PtrDetails<T> pd(rv, size);
+            refContainer.push_back(pd);
+        }    
+        return rv;
+    }
+
+    // Display refContainer.
+    template <class T, int size>
+    void Pointer<T, size>::showlist()
+    {
+        typename std::list<PtrDetails<T>>::iterator p;
+        std::cout << "--------------------\n";
+        std::cout << "refContainer<" << typeid(T).name() << ", " << size << ">:\n\n";
+        std::cout << "memPtr refcount value\n";
+        if (refContainer.begin() == refContainer.end())
+        {
+            std::cout << "-->Container is empty!\n\n ";
+        }
+
+        // Else, refContainer is full of data
+        for (p = refContainer.begin(); p != refContainer.end(); p++)
+        {
+            // point to the memory address that memPtr is holding,
+            // then dereference to get the value at that address
+            std::cout << "address=" << (void *)p->memPtr
+                    << " refcount=" << p->refcount << " ";
+
+            // If p does points to a valid memory address, then derefernce it
+            if (p->memPtr)
+                std::cout << " value=" << *p->memPtr;
+            else
+                std::cout << "value=None";
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+        std::cout << "--------------------\n";
+    }
+
+
+    // Find a pointer in refContainer.
+    template <class T, int size>
+    typename std::list<PtrDetails<T>>::iterator
+    Pointer<T, size>::findPtrInfo(T *ptr)
+    {
+        typename std::list<PtrDetails<T>>::iterator p;
+        // Maybe find ptr in refContainer.
+        for (p = refContainer.begin(); p != refContainer.end(); p++)
+            if (p->memPtr == ptr)
+                return p;
+        // Else, return an unassigned p of type iterator
+        return p;
+    }
+
+    // Clear refContainer when program exits.
+    template <class T, int size>
+    void Pointer<T, size>::shutdown()
+    {
+        if (refContainerSize() == 0)
+            return; // list is empty
+        typename std::list<PtrDetails<T>>::iterator p;
+        for (p = refContainer.begin(); p != refContainer.end(); p++)
+        {
+            // Set all reference counts to zero
+            p->refcount = 0;
+        }
+        collect();
+    }
