@@ -190,4 +190,11 @@ CMakeFiles/main.dir/src/main.cpp.o: \
  /usr/include/c++/13/optional \
  /usr/include/c++/13/bits/enable_special_members.h \
  /usr/include/c++/13/span /usr/include/c++/13/variant \
- /usr/include/c++/13/bits/ranges_algobase.h
+ /usr/include/c++/13/bits/ranges_algobase.h \
+ /home/jay-zenith/Desktop/cpp-memory-management/src/../include/pointer.h \
+ /usr/include/c++/13/list /usr/include/c++/13/bits/stl_list.h \
+ /usr/include/c++/13/bits/list.tcc \
+ /home/jay-zenith/Desktop/cpp-memory-management/src/../include/details.h \
+ /home/jay-zenith/Desktop/cpp-memory-management/src/../include/iterator.h \
+ /home/jay-zenith/Desktop/cpp-memory-management/src/../include/LeakTester.h \
+ /usr/include/c++/13/cstring /usr/include/string.h /usr/include/strings.h
