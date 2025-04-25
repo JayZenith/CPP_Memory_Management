@@ -1,7 +1,6 @@
 
 //class defines element that is stored in the 
 //garbage collection information list
-
 template<class T>
 class PtrDetails{
 public:
