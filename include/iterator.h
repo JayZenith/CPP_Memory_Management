@@ -1,3 +1,13 @@
+// Exception thrown when an attempt is made to
+// use an Iter that exceeds the range of the
+// underlying object.
+//
+class OutOfRangeExc
+{
+    // Add functionality if needed by your application.
+};
+
+
 //An iterator like class for cycling through arrays
 //pointed to by GC pionters. Iter pointers dont participate
 //in or affect garbage collection. Thus, iter pointing to some 

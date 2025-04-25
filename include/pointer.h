@@ -159,7 +159,7 @@ public:
         if (p->memPtr == ob.addr)
         {
             // update PtrDetails<T>'s refCount
-            (p->refcount)++;
+            (p->refCount)++;
         }
         else
         {
@@ -177,7 +177,7 @@ public:
         p = findPtrInfo(addr);
 
         // decrement ref count
-        (p->refcount)--;
+        (p->refCount)--;
 
         // Collect garbage when a pointer goes out of scope.
         // TIP: For real use, you might want to collect unused memory less frequently,
@@ -200,7 +200,7 @@ public:
             for (p = refContainer.begin(); p != refContainer.end(); p++)
             {
                 // If the memory is still in-use, continue through loop.
-                if (p->refcount > 0)
+                if (p->refCount > 0)
                     continue;
 
                 if (p->memPtr)
@@ -231,11 +231,11 @@ public:
         // find the current PtrDetails that contains this' addr
         typename std::list<PtrDetails<T>>::iterator p;
         p = findPtrInfo(addr);
-        (p->refcount)--;
+        (p->refCount)--;
 
         p = findPtrInfo(t);
         if(p!=refContainer.end()){
-            p->refcount++;
+            p->refCount++;
         } else {
             // Add a new PtrDeatils to refContainer
             PtrDetails<T> pd(t, size);
@@ -251,11 +251,11 @@ public:
     {
         typename std::list<PtrDetails<T>>::iterator p;
         p = findPtrInfo(addr);
-        (p->refcount)--;
+        (p->refCount)--;
 
         p = findPtrInfo(rv.addr);
         if(p!=refContainer.end()){
-            p->refcount++;
+            p->refCount++;
         } else {
             // Add a new PtrDeatils to refContainer
             PtrDetails<T> pd(rv, size);
@@ -321,7 +321,7 @@ public:
         for (p = refContainer.begin(); p != refContainer.end(); p++)
         {
             // Set all reference counts to zero
-            p->refcount = 0;
+            p->refCount = 0;
         }
         collect();
     }
